@@ -1,0 +1,8 @@
+vim
+git
+cmake
+clang
+htop
+python
+python3-pip
+build-essential
