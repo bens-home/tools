@@ -85,8 +85,6 @@ EnsureSuccess
 offset=0
 for c in $(seq 1 1 $episodeCount)
 do
-    #ep=`printf "%02.f" $(( ($disk-1)*$episodeCount+$c ))`
-    #fn="$scratchDir/$seriesName ${series}x$ep.mp4"
     outFileName="${seriesName}_S${seasonNum}_E$c.m4v"
     outDir="$scratchDir/$seriesName/Season_$seasonNum"
     fullDestPath="$outDir/$outFileName"
