@@ -14,6 +14,11 @@ List the amount of disk space on a machine
 df -h
 ```
 
+Make a script executable
+```
+chmod u+x script.sh
+```
+
 
 ## InstallCommonAptPackages
 
