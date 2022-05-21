@@ -23,7 +23,7 @@ function PrintHelp
 function EnsureSuccess
 {
     if [ $? -eq 0 ]; then
-        printf "\n${Green}Success!${NoColor}\n"
+        printf "\n\t${Green}Success!${NoColor}\n"
     else
         printf "\n${Red} Uh oh!! Failed. Error code $? ${NoColor}\n\n"
         exit 1;
@@ -31,14 +31,14 @@ function EnsureSuccess
 }
 
 disk=/dev/sr0
-destinationDir="/media/BigData/Media/Series/$seriesName"
-scratchDir="~/scratch"
+destinationDir="/media/BigData/Media/Series"
+scratchDir="./scratch"
 episodeCount=32
 seriesName="TvShowName"
 seasonNum=1
 
 # Iterate the args!
-while getopts "f:d" flag
+while getopts "f:d:s:e:n:z:" flag
 do
      case $flag in
         f)
@@ -56,7 +56,7 @@ do
         n)
             seriesName=$OPTARG
             ;;
-        N)
+        z)
             seasonNum=$OPTARG
             ;;
         *)
@@ -65,16 +65,17 @@ do
      esac 
 done
 
-printf "${Green}Ripping DVD with the following options:\n\n${NoColor}"
+printf "\n${LightBlue}Ripping DVD with the following options:\n\n${NoColor}"
 printf "\tSeries Title:      \t$seriesName\n"
+printf "\tSeason Number:     \t$seasonNum\n"
 printf "\tNumber of Episodes:\t$episodeCount\n"
 printf "\tFrom Disk:         \t$disk\n"
 printf "\tScratch Dir:       \t$scratchDir\n"
 printf "\tDestination Dir:   \t$destinationDir\n\n"
 
 
-# Make the scratch dir
-printf "${LightBlue}Creating the scratch direcotry '$scratchDir' ...\n${NoColor}"
+# Make the scratch dir, which is where the episodes will be transcoded too first
+printf "${LightBlue}Creating the scratch directory ${Yellow}$scratchDir${NoColor}..."
 mkdir -p $scratchDir
 EnsureSuccess
 
@@ -86,18 +87,26 @@ for c in $(seq 1 1 $episodeCount)
 do
     #ep=`printf "%02.f" $(( ($disk-1)*$episodeCount+$c ))`
     #fn="$scratchDir/$seriesName ${series}x$ep.mp4"
-    outFileName="${seriesName}_S${seasonNum}_E$c"
+    outFileName="${seriesName}_S${seasonNum}_E$c.m4v"
     outDir="$scratchDir/$seriesName/Season_$seasonNum"
     fullDestPath="$outDir/$outFileName"
-    printf "Transcoding episode $c to $fullDestPath"
+    printf "Transcoding episode $c to ${Yellow}$fullDestPath${NoColor}...\n\t"
     # TODO: figure how to use handbrake CLI, i don't really get it yet
-#     /home/oli/hb/HandBrakeCLI -S 200 -Z Television -a 1 -i /dev/sr0 -o "$fn" -t $(($c + $offset))
+#     /home/oli/hb/HandBrakeCLI -S 200 -Z Television -a 1 -i $disk -o "$fn" -t $(($c + $offset))
     EnsureSuccess
 done
 
+# The final destination that we want the files in is the given destination directory + the series name
+finalDestination=${destinationDir}/${seriesName}
+
+# Create the destination directory if it doesn't exist
+printf "\n${LightBlue}Creating destination directory ${Yellow}$finalDestination${NoColor}..."
+mkdir -p $finalDestination
+EnsureSuccess
+
 # move the files from the scratch dir to the final destination
-printf "\n\n${LightBlue}Moving from scratch location '$scratchDir' to '$destinationDir'${NoColor}"
-#mv $scratchDir/* "$destinationDir"
+printf "${LightBlue}Moving from scratch location ${Yellow}$scratchDir${LightBlue} to ${Yellow}$finalDestination${NoColor}..."
+#mv $scratchDir/* "$finalDestination"
 EnsureSuccess
 
 
