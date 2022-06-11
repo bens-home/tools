@@ -20,6 +20,7 @@ function PrintHelp
     exit 1;
 }
 
+# Prints out success status if the previous command worked. Exits if it failed
 function EnsureSuccess
 {
     if [ $? -eq 0 ]; then
@@ -83,15 +84,20 @@ EnsureSuccess
 # on handbrake
 
 offset=0
+
+# We should probably change this to "For each .VOB file in the dir"... idk why i did episode numbers
 for c in $(seq 1 1 $episodeCount)
 do
-    outFileName="${seriesName}_S${seasonNum}_E$c.m4v"
+    # The name of the file is Series Season Num Episode Num
+    outFileName="${seriesName}_S${seasonNum}_E$c.mp4"
+    # Output to the scratch directory per season
     outDir="$scratchDir/$seriesName/Season_$seasonNum"
     fullDestPath="$outDir/$outFileName"
+
     printf "Transcoding episode $c to ${Yellow}$fullDestPath${NoColor}...\n\t"
     # TODO: figure how to use handbrake CLI, i don't really get it yet
-#     /home/oli/hb/HandBrakeCLI -S 200 -Z Television -a 1 -i $disk -o "$fn" -t $(($c + $offset))
-    EnsureSuccess
+    #fr.handbrake.HandBrakeCLI -S 200 -Z "General/Fast 1080p30" -a 1 -i $disk -o "$fullDestPath" -t $(($c + $offset))
+    #EnsureSuccess
 done
 
 # The final destination that we want the files in is the given destination directory + the series name
@@ -104,11 +110,5 @@ EnsureSuccess
 
 # move the files from the scratch dir to the final destination
 printf "${LightBlue}Moving from scratch location ${Yellow}$scratchDir${LightBlue} to ${Yellow}$finalDestination${NoColor}..."
-#mv $scratchDir/* "$finalDestination"
+mv $scratchDir/* "$finalDestination"
 EnsureSuccess
-
-
-# Maybe eject the disk? idk probably not
-# eject
-# sleep 2
-# eject
